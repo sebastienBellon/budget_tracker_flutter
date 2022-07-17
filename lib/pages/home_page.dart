@@ -1,7 +1,9 @@
+import 'package:budget_tracker/widgets/transaction_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../models/transaction_item.dart';
+import '../widgets/transaction_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,15 +26,25 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
+  void addTransactionToItems(TransactionItem item) {}
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            items.add(TransactionItem(itemTitle: 'test', amount: 1.0));
-          });
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AddTransactionDialog(
+                  itemToAdd: (transactionItem) {
+                    setState(() {
+                      items.add(transactionItem);
+                    });
+                  },
+                );
+              });
         },
         child: const Icon(Icons.add),
       ),
@@ -85,46 +97,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class TransactionCard extends StatelessWidget {
-  final TransactionItem item;
-  const TransactionCard({Key? key, required this.item}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: BorderRadius.circular(15.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.05),
-              offset: const Offset(0, 25),
-              blurRadius: 50,
-            )
-          ],
-        ),
-        padding: const EdgeInsets.all(15.0),
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              item.itemTitle,
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              (item.isExpense ? '+ ' : '- ') + item.amount.toString(),
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
         ),
       ),
     );
