@@ -14,7 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tracker App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        // colorScheme from seed generate an entire system theme based
+        // on MUI 3 from a single initial color
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
       home: const Home(),
     );
