@@ -1,32 +1,13 @@
 import 'package:budget_tracker/widgets/transaction_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 
-import '../models/transaction_item.dart';
+import '../services/budget_service.dart';
 import '../widgets/transaction_card.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  List<TransactionItem> items = [
-    TransactionItem(
-      itemTitle: 'Apple Watch',
-      amount: 105.99,
-      isExpense: true,
-    ),
-    TransactionItem(
-      itemTitle: 'Apple iPhone',
-      amount: 800,
-      isExpense: false,
-    ),
-  ];
-
-  void addTransactionToItems(TransactionItem item) {}
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +20,9 @@ class _HomePageState extends State<HomePage> {
               builder: (context) {
                 return AddTransactionDialog(
                   itemToAdd: (transactionItem) {
-                    setState(() {
-                      items.add(transactionItem);
-                    });
+                    final budgetService =
+                        Provider.of<BudgetService>(context, listen: false);
+                    budgetService.addItem(transactionItem);
                   },
                 );
               });
@@ -58,26 +39,34 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Align(
                   alignment: Alignment.topCenter,
-                  child: CircularPercentIndicator(
-                    radius: screenSize.width / 4,
-                    lineWidth: 10.0,
-                    percent: 0.5,
-                    backgroundColor: Colors.white,
-                    center: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text(
-                          '\$0',
-                          style: TextStyle(
-                              fontSize: 48, fontWeight: FontWeight.bold),
+                  child: Consumer<BudgetService>(
+                    builder: ((context, value, child) {
+                      return CircularPercentIndicator(
+                        radius: screenSize.width / 4,
+                        lineWidth: 10.0,
+                        percent: value.balance / value.budget,
+                        backgroundColor: Colors.white,
+                        center: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "\$${value.balance.toString().split(".")[0]}",
+                              style: const TextStyle(
+                                  fontSize: 48, fontWeight: FontWeight.bold),
+                            ),
+                            const Text(
+                              'Balance',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            Text(
+                              'Budget: \$ ${value.budget}',
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Balance',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    progressColor: Theme.of(context).colorScheme.primary,
+                        progressColor: Theme.of(context).colorScheme.primary,
+                      );
+                    }),
                   ),
                 ),
                 const SizedBox(height: 35),
@@ -86,13 +75,18 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                // here we are using the spread operator to avoid returning a List<widget>
-                // but a widget instead
-                ...List.generate(
-                  items.length,
-                  (index) => TransactionCard(
-                    item: items[index],
-                  ),
+                Consumer<BudgetService>(
+                  builder: ((context, value, child) {
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: value.items.length,
+                        physics: const ClampingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return TransactionCard(
+                            item: value.items[index],
+                          );
+                        });
+                  }),
                 )
               ],
             ),
