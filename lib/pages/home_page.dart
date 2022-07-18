@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import '../models/transaction_item.dart';
-import '../widgets/add_budget_dialog.dart';
 import '../widgets/transaction_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -33,23 +32,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Budget Tracker'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AddBudgetDialog(
-                      setBudget: (budget) {},
-                    );
-                  });
-            },
-            icon: const Icon(Icons.attach_money),
-          )
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
