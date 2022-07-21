@@ -7,9 +7,12 @@ import 'package:budget_tracker/services/theme_service.dart';
 
 import 'screens/home.dart';
 import 'services/budget_service.dart';
+import 'services/local_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final localStorageService = LocalStorageService();
+  await localStorageService.initializeHive();
   final sharedPreferences = await SharedPreferences.getInstance();
   runApp(MyApp(sharedPreferences: sharedPreferences));
 }
