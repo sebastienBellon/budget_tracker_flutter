@@ -2,6 +2,10 @@ import 'package:budget_tracker/models/transaction_item.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class LocalStorageService {
+  static const String transactionsBoxKey = "transactionsBox";
+  static const String balanceBoxKey = "balanceBox";
+  static const String budgetBoxKey = "budgetBoxKey";
+
   static final LocalStorageService _instance = LocalStorageService._internal();
 
   factory LocalStorageService() {
@@ -9,10 +13,6 @@ class LocalStorageService {
   }
 
   LocalStorageService._internal();
-
-  static const String transactionsBoxKey = "transactionsBox";
-  static const String balanceBoxKey = "balanceBox";
-  static const String budgetBoxKey = "budgetBoxKey";
 
   Future<void> initializeHive() async {
     await Hive.initFlutter();
@@ -24,7 +24,7 @@ class LocalStorageService {
 
     await Hive.openBox<double>(budgetBoxKey);
     await Hive.openBox<TransactionItem>(transactionsBoxKey);
-    await Hive.openBox<double>(budgetBoxKey);
+    await Hive.openBox<double>(balanceBoxKey);
   }
 
   void saveTransactionItem(TransactionItem transaction) {
@@ -34,6 +34,22 @@ class LocalStorageService {
 
   List<TransactionItem> getAllTransactions() {
     return Hive.box<TransactionItem>(transactionsBoxKey).values.toList();
+  }
+
+  void deleteTransactionItem(TransactionItem transaction) {
+    // Get a list of our transactions
+    final transactions = Hive.box<TransactionItem>(transactionsBoxKey);
+    // Create a map out of it
+    final Map<dynamic, TransactionItem> map = transactions.toMap();
+    dynamic desiredKey;
+    // For each key in the map, we check if the transaction is the same as the one we want to delete
+    map.forEach((key, value) {
+      if (value.itemTitle == transaction.itemTitle) desiredKey = key;
+    });
+    // If we found the key, we delete it
+    transactions.delete(desiredKey);
+    // And we update the balance
+    saveBalanceOnDelete(transaction);
   }
 
   double getBalance() {
@@ -47,6 +63,16 @@ class LocalStorageService {
       balanceBox.put("balance", currentBalance + item.amount);
     } else {
       balanceBox.put("balance", currentBalance - item.amount);
+    }
+  }
+
+  Future<void> saveBalanceOnDelete(TransactionItem item) async {
+    final balanceBox = Hive.box<double>(balanceBoxKey);
+    final currentBalance = getBalance();
+    if (item.isExpense) {
+      balanceBox.put("balance", currentBalance - item.amount);
+    } else {
+      balanceBox.put("balance", currentBalance + item.amount);
     }
   }
 
