@@ -3,7 +3,7 @@ import 'package:budget_tracker/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/budget_service.dart';
+import '../view_models/budget_view_model.dart';
 import '../services/theme_service.dart';
 import '../widgets/add_budget_dialog.dart';
 

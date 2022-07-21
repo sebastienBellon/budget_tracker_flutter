@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:budget_tracker/services/theme_service.dart';
 
 import 'screens/home.dart';
-import 'services/budget_service.dart';
+import 'view_models/budget_view_model.dart';
 import 'services/local_storage_service.dart';
 
 void main() async {
@@ -28,8 +28,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<ThemeService>(create: (_) => ThemeService(sharedPreferences)),
-        ChangeNotifierProvider<BudgetService>(create: (_) => BudgetService()),
+        ChangeNotifierProvider<ThemeService>(
+            create: (_) => ThemeService(sharedPreferences)),
+        ChangeNotifierProvider<BudgetViewModel>(
+            create: (_) => BudgetViewModel()),
       ],
       child: Builder(builder: (BuildContext context) {
         final themeService = Provider.of<ThemeService>(context);
